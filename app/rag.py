@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 import hashlib, json, math, re, time
 from collections import Counter, OrderedDict
 import httpx
@@ -6,6 +7,8 @@ from .database import db,set_tenant_context
 from .config import settings
 from .security import context_is_usable,classify_untrusted_input_async
 from .secrets import secrets
+
+logger = logging.getLogger(__name__)
 
 TOKEN_RE=re.compile(r"[a-zA-Z0-9_\-]+")
 _CACHE=OrderedDict()
@@ -64,7 +67,10 @@ async def _cache_get(key:str):
             r=await _redis_client(); val=await r.get("rag:"+key)
             return json.loads(val) if val else None
         except Exception:
-            pass
+            logger.warning(
+                "Redis cache read failed; using bounded local cache fallback",
+                exc_info=True,
+            )
     return _local_cache_get(key)
 
 async def _cache_set(key:str,value):
@@ -72,7 +78,10 @@ async def _cache_set(key:str,value):
         try:
             r=await _redis_client(); await r.setex("rag:"+key,60,json.dumps(value,default=str)); return
         except Exception:
-            pass
+            logger.warning(
+                "Redis cache write failed; using bounded local cache fallback",
+                exc_info=True,
+            )
     _local_cache_set(key,value)
 
 def _qdrant_headers()->dict[str,str]:
@@ -97,7 +106,10 @@ async def _qdrant_upsert(doc_id:int,tenant_id:str,title:str,content:str,environm
         async with httpx.AsyncClient(timeout=2,headers=_qdrant_headers()) as c:
             r=await c.put(f"{settings.qdrant_url}/collections/{COLLECTION}/points?wait=true",json={"points":[{"id":doc_id,"vector":vector,"payload":{"tenant_id":tenant_id,"title":title,"content":content,"environment":environment,"service":service,"trust_level":trust_level}}]}); r.raise_for_status()
     except Exception:
-        pass
+        logger.warning(
+            "Qdrant indexing failed; document remains available to primary storage",
+            exc_info=True,
+        )
 
 async def ingest(tenant_id:str,title:str,content:str,environment="production",service="general",trust_level="trusted"):
     set_tenant_context(tenant_id)

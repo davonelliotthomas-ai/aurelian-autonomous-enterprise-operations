@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 import asyncio
 import hashlib
 import hmac
@@ -9,6 +10,8 @@ import httpx
 from .config import settings
 from .secrets import secrets
 from .database import db, audit_db, set_tenant_context
+
+logger = logging.getLogger(__name__)
 
 
 def utcnow():
@@ -114,8 +117,9 @@ async def append_audit(tenant_id: str, actor: str, event_type: str, payload: dic
             async with httpx.AsyncClient(timeout=1.5) as client:
                 await client.post(settings.siem_webhook_url, json=event)
         except Exception:
-            # Audit persistence must not fail open because an optional SIEM is down.
-            pass
+            # Audit persistence remains authoritative locally even when the optional
+            # SIEM transport is unavailable, but the delivery failure must be visible.
+            logger.warning("SIEM webhook delivery failed", exc_info=True)
     return event
 
 
