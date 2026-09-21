@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: aurelian-autonomous-ops-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PUBLIC_DEMO
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AUDIT_SIGNING_KEY
+        generateValue: true
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+# Full enterprise-shaped stack is defined in docker-compose.yml. A single-container public cloud demo can use SQLite fallback;
+# production deployment should attach managed Postgres/Redis/Qdrant/OPA/OTLP equivalents.

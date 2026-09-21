@@ -1,0 +1,27 @@
+version: 1
+risk_tiers:
+  low:
+    minimum_role: viewer
+    approval: none
+  medium:
+    minimum_role: operator
+    approval: team
+  high:
+    minimum_role: operator
+    approval: executive_mfa
+actions:
+  search_knowledge: {risk: low}
+  get_service_health: {risk: low}
+  list_inventory: {risk: low}
+  recommend_reorders: {risk: low, minimum_role: operator}
+  get_customer_profile: {risk: low, minimum_role: operator}
+  get_order_backlog: {risk: low, minimum_role: operator}
+  send_notice: {risk: medium}
+  restart_service: {risk: medium}
+  change_product_price: {risk: high}
+  issue_refund: {risk: high}
+  disable_user_account: {risk: high}
+constraints:
+  production_write_requires_approval: true
+  high_risk_requires_mfa: true
+  block_side_effect_on_prompt_injection: true

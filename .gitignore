@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.secrets/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.db
+*.sqlite*
+.DS_Store
+EXECUTABLE_AND_TEST_CODE_SHA256.txt

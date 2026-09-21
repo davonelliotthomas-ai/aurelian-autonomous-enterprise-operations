@@ -1,0 +1,320 @@
+name: v352
+services:
+  api:
+    build:
+      context: /home/davon/aurelian/v352-live/v352
+      dockerfile: Dockerfile
+    cap_drop:
+      - ALL
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+        required: true
+      opa:
+        condition: service_started
+        required: true
+      planner:
+        condition: service_healthy
+        required: true
+      qdrant:
+        condition: service_started
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+      tool-runner:
+        condition: service_healthy
+        required: true
+    environment:
+      APP_ENV: container
+      AUDIT_DATABASE_PASSWORD_SECRET: POSTGRES_AUDIT_PASSWORD
+      AUDIT_DATABASE_URL: postgresql://aurelian_audit_writer@postgres:5432/aurelian
+      DATABASE_PASSWORD_SECRET: POSTGRES_APP_PASSWORD
+      DATABASE_URL: postgresql://aurelian_app@postgres:5432/aurelian
+      OPA_URL: http://opa:8181
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-control-plane-api
+      PLANNER_URL: http://planner:8082
+      PUBLIC_DEMO: "true"
+      QDRANT_API_KEY_SECRET: QDRANT_API_KEY
+      QDRANT_URL: http://qdrant:6333
+      REDIS_PASSWORD_SECRET: REDIS_PASSWORD
+      REDIS_URL: redis://redis:6379/0
+      TOOL_RUNNER_URL: http://tool-runner:8081
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/health')
+      timeout: 3s
+      interval: 10s
+      retries: 10
+    networks:
+      frontend_api: null
+      internal: null
+      planner_exec: null
+      tool_exec: null
+    read_only: true
+    secrets:
+      - source: jwt_secret
+        target: /run/secrets/jwt_secret
+      - source: audit_signing_key
+        target: /run/secrets/audit_signing_key
+      - source: internal_service_token
+        target: /run/secrets/internal_service_token
+      - source: postgres_app_password
+        target: /run/secrets/postgres_app_password
+      - source: postgres_audit_password
+        target: /run/secrets/postgres_audit_password
+      - source: redis_password
+        target: /run/secrets/redis_password
+      - source: qdrant_api_key
+        target: /run/secrets/qdrant_api_key
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=128m,nosuid,nodev
+  frontend:
+    build:
+      context: /home/davon/aurelian/v352-live/v352
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+        required: true
+    networks:
+      edge: null
+      frontend_api: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+  jaeger:
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    image: jaegertracing/all-in-one:1.64.0
+    networks:
+      internal: null
+      planner_exec: null
+      tool_exec: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 16686
+        published: "16686"
+        protocol: tcp
+  migrate:
+    build:
+      context: /home/davon/aurelian/v352-live/v352
+      dockerfile: Dockerfile
+    command:
+      - python
+      - -m
+      - app.migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      APP_ENV: demo
+      POSTGRES_ADMIN_USER: aurelian_admin
+      POSTGRES_DB: aurelian
+      POSTGRES_HOST: postgres
+    networks:
+      internal: null
+    restart: 'no'
+    secrets:
+      - source: postgres_admin_password
+        target: /run/secrets/postgres_admin_password
+  opa:
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - /policy/policy.rego
+    image: openpolicyagent/opa:0.70.0-static
+    networks:
+      internal: null
+    volumes:
+      - type: bind
+        source: /home/davon/aurelian/v352-live/v352/opa
+        target: /policy
+        read_only: true
+        bind: {}
+  planner:
+    build:
+      context: /home/davon/aurelian/v352-live/v352
+      dockerfile: planner_runner/Dockerfile
+    cap_drop:
+      - ALL
+    cpus: 0.35
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-planner
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8082/health')
+      timeout: 3s
+      interval: 10s
+      retries: 10
+    mem_limit: "100663296"
+    networks:
+      planner_exec: null
+    pids_limit: 32
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    user: 10002:10002
+  postgres:
+    environment:
+      POSTGRES_DB: aurelian
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      POSTGRES_USER: aurelian_admin
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U aurelian_admin -d aurelian
+      timeout: 3s
+      interval: 5s
+      retries: 20
+    image: postgres:16-alpine
+    networks:
+      internal: null
+    secrets:
+      - source: postgres_admin_password
+        target: /run/secrets/postgres_admin_password
+      - source: postgres_app_password
+        target: /run/secrets/postgres_app_password
+      - source: postgres_audit_password
+        target: /run/secrets/postgres_audit_password
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+        volume: {}
+      - type: bind
+        source: /home/davon/aurelian/v352-live/v352/postgres/init
+        target: /docker-entrypoint-initdb.d
+        read_only: true
+        bind: {}
+  qdrant:
+    command:
+      - export QDRANT__SERVICE__API_KEY="$$(cat /run/secrets/qdrant_api_key)"; exec
+        /qdrant/qdrant
+    entrypoint:
+      - /bin/sh
+      - -c
+    image: qdrant/qdrant:v1.12.5
+    networks:
+      internal: null
+    secrets:
+      - source: qdrant_api_key
+        target: /run/secrets/qdrant_api_key
+    volumes:
+      - type: volume
+        source: qdrant
+        target: /qdrant/storage
+        volume: {}
+  redis:
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --save 60 1 --requirepass "$$(cat /run/secrets/redis_password)"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli -a "$$(cat /run/secrets/redis_password)" ping 2>/dev/null | grep
+          -q PONG
+      timeout: 3s
+      interval: 5s
+      retries: 20
+    image: redis:7.4-alpine
+    networks:
+      internal: null
+    secrets:
+      - source: redis_password
+        target: /run/secrets/redis_password
+  tool-runner:
+    build:
+      context: /home/davon/aurelian/v352-live/v352
+      dockerfile: tool_runner/Dockerfile
+    cap_drop:
+      - ALL
+    cpus: 0.5
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-tool-runner
+      REQUIRE_SECRET_FILES: "true"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8081/health')
+      timeout: 3s
+      interval: 10s
+      retries: 10
+    mem_limit: "134217728"
+    networks:
+      tool_exec: null
+    pids_limit: 64
+    read_only: true
+    secrets:
+      - source: internal_service_token
+        target: /run/secrets/internal_service_token
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid,nodev
+    user: 10001:10001
+networks:
+  edge:
+    name: v352_edge
+  frontend_api:
+    name: v352_frontend_api
+  internal:
+    name: v352_internal
+    internal: true
+  planner_exec:
+    name: v352_planner_exec
+    internal: true
+  tool_exec:
+    name: v352_tool_exec
+    internal: true
+volumes:
+  pgdata:
+    name: v352_pgdata
+  qdrant:
+    name: v352_qdrant
+secrets:
+  audit_signing_key:
+    name: v352_audit_signing_key
+    file: /home/davon/aurelian/v352-live/v352/.secrets/audit_signing_key
+  internal_service_token:
+    name: v352_internal_service_token
+    file: /home/davon/aurelian/v352-live/v352/.secrets/internal_service_token
+  jwt_secret:
+    name: v352_jwt_secret
+    file: /home/davon/aurelian/v352-live/v352/.secrets/jwt_secret
+  postgres_admin_password:
+    name: v352_postgres_admin_password
+    file: /home/davon/aurelian/v352-live/v352/.secrets/postgres_admin_password
+  postgres_app_password:
+    name: v352_postgres_app_password
+    file: /home/davon/aurelian/v352-live/v352/.secrets/postgres_app_password
+  postgres_audit_password:
+    name: v352_postgres_audit_password
+    file: /home/davon/aurelian/v352-live/v352/.secrets/postgres_audit_password
+  qdrant_api_key:
+    name: v352_qdrant_api_key
+    file: /home/davon/aurelian/v352-live/v352/.secrets/qdrant_api_key
+  redis_password:
+    name: v352_redis_password
+    file: /home/davon/aurelian/v352-live/v352/.secrets/redis_password

@@ -1,0 +1,8 @@
+# Production overlay: disables demo identity mint and requires external OIDC.
+services:
+  api:
+    environment:
+      PUBLIC_DEMO: "false"
+      OIDC_ISSUER: ${OIDC_ISSUER:?set OIDC_ISSUER}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:?set OIDC_AUDIENCE}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-}

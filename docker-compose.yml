@@ -1,0 +1,188 @@
+services:
+  frontend:
+    build: {context: ., dockerfile: frontend/Dockerfile}
+    ports: ["8080:8080"]
+    depends_on:
+      api: {condition: service_healthy}
+    networks: [edge, frontend_api]
+
+  api:
+    build: .
+    environment:
+      APP_ENV: container
+      DATABASE_URL: postgresql://aurelian_app@postgres:5432/aurelian
+      DATABASE_PASSWORD_SECRET: POSTGRES_APP_PASSWORD
+      AUDIT_DATABASE_URL: postgresql://aurelian_audit_writer@postgres:5432/aurelian
+      AUDIT_DATABASE_PASSWORD_SECRET: POSTGRES_AUDIT_PASSWORD
+      REDIS_URL: redis://redis:6379/0
+      REDIS_PASSWORD_SECRET: REDIS_PASSWORD
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY_SECRET: QDRANT_API_KEY
+      OPA_URL: http://opa:8181
+      TOOL_RUNNER_URL: http://tool-runner:8081
+      PLANNER_URL: http://planner:8082
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-control-plane-api
+      PUBLIC_DEMO: "true"
+    secrets:
+      - jwt_secret
+      - audit_signing_key
+      - internal_service_token
+      - postgres_app_password
+      - postgres_audit_password
+      - redis_password
+      - qdrant_api_key
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+      qdrant: {condition: service_started}
+      opa: {condition: service_started}
+      tool-runner: {condition: service_healthy}
+      planner: {condition: service_healthy}
+    read_only: true
+    tmpfs: ["/tmp:size=128m,nosuid,nodev"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD","python","-c","import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [frontend_api, internal, tool_exec, planner_exec]
+
+  planner:
+    build: {context: ., dockerfile: planner_runner/Dockerfile}
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-planner
+    user: "10002:10002"
+    read_only: true
+    tmpfs: ["/tmp:size=16m,noexec,nosuid,nodev"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 32
+    mem_limit: 96m
+    cpus: 0.35
+    healthcheck:
+      test: ["CMD","python","-c","import urllib.request; urllib.request.urlopen('http://localhost:8082/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [planner_exec]
+
+  migrate:
+    build: .
+    command: ["python","-m","app.migrate"]
+    environment:
+      APP_ENV: demo
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: aurelian
+      POSTGRES_ADMIN_USER: aurelian_admin
+    secrets: [postgres_admin_password]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+    networks: [internal]
+
+  tool-runner:
+    build: {context: ., dockerfile: tool_runner/Dockerfile}
+    environment:
+      REQUIRE_SECRET_FILES: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_SERVICE_NAME: aurelian-tool-runner
+    secrets: [internal_service_token]
+    user: "10001:10001"
+    read_only: true
+    tmpfs: ["/tmp:size=32m,noexec,nosuid,nodev"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.50
+    healthcheck:
+      test: ["CMD","python","-c","import urllib.request; urllib.request.urlopen('http://localhost:8081/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [tool_exec]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: aurelian
+      POSTGRES_USER: aurelian_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+    secrets:
+      - postgres_admin_password
+      - postgres_app_password
+      - postgres_audit_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U aurelian_admin -d aurelian"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [internal]
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["sh","-c",'exec redis-server --appendonly yes --save 60 1 --requirepass "$$(cat /run/secrets/redis_password)"']
+    secrets: [redis_password]
+    healthcheck:
+      test: ["CMD-SHELL",'redis-cli -a "$$(cat /run/secrets/redis_password)" ping 2>/dev/null | grep -q PONG']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [internal]
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.5
+    entrypoint: ["/bin/sh","-c"]
+    command:
+      - 'export QDRANT__SERVICE__API_KEY="$$(cat /run/secrets/qdrant_api_key)"; exec /qdrant/qdrant'
+    secrets: [qdrant_api_key]
+    volumes: ["qdrant:/qdrant/storage"]
+    networks: [internal]
+
+  opa:
+    image: openpolicyagent/opa:0.70.0-static
+    command: ["run","--server","--addr=0.0.0.0:8181","/policy/policy.rego"]
+    volumes: ["./opa:/policy:ro"]
+    networks: [internal]
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.64.0
+    environment: {COLLECTOR_OTLP_ENABLED: "true"}
+    ports: ["127.0.0.1:16686:16686"]
+    networks: [internal, tool_exec, planner_exec]
+
+volumes:
+  pgdata: {}
+  qdrant: {}
+
+networks:
+  edge: {}
+  frontend_api: {}
+  internal: {internal: true}
+  tool_exec: {internal: true}
+  planner_exec: {internal: true}
+
+secrets:
+  jwt_secret:
+    file: ./.secrets/jwt_secret
+  audit_signing_key:
+    file: ./.secrets/audit_signing_key
+  internal_service_token:
+    file: ./.secrets/internal_service_token
+  postgres_admin_password:
+    file: ./.secrets/postgres_admin_password
+  postgres_app_password:
+    file: ./.secrets/postgres_app_password
+  postgres_audit_password:
+    file: ./.secrets/postgres_audit_password
+  redis_password:
+    file: ./.secrets/redis_password
+  qdrant_api_key:
+    file: ./.secrets/qdrant_api_key

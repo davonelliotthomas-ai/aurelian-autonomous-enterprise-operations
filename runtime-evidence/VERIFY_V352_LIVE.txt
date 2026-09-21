@@ -1,0 +1,97 @@
+== Compose services ==
+NAME                 IMAGE                               COMMAND                  SERVICE       CREATED          STATUS                    PORTS
+v352-api-1           v352-api                            "uvicorn app.main:ap…"   api           2 minutes ago    Up 2 minutes (healthy)    8000/tcp
+v352-frontend-1      v352-frontend                       "/docker-entrypoint.…"   frontend      2 minutes ago    Up 2 minutes              0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+v352-jaeger-1        jaegertracing/all-in-one:1.64.0     "/go/bin/all-in-one-…"   jaeger        27 minutes ago   Up 27 minutes             16686/tcp
+v352-opa-1           openpolicyagent/opa:0.70.0-static   "/opa run --server -…"   opa           27 minutes ago   Up 27 minutes             
+v352-planner-1       v352-planner                        "uvicorn app:app --h…"   planner       27 minutes ago   Up 27 minutes (healthy)   
+v352-postgres-1      postgres:16-alpine                  "docker-entrypoint.s…"   postgres      27 minutes ago   Up 27 minutes (healthy)   5432/tcp
+v352-qdrant-1        qdrant/qdrant:v1.12.5               "/bin/sh -c 'export …"   qdrant        2 minutes ago    Up 2 minutes              6333-6334/tcp
+v352-redis-1         redis:7.4-alpine                    "docker-entrypoint.s…"   redis         27 minutes ago   Up 27 minutes (healthy)   6379/tcp
+v352-tool-runner-1   v352-tool-runner                    "uvicorn tool_runner…"   tool-runner   27 minutes ago   Up 27 minutes (healthy)   
+== Health ==
+{"status":"ok","system":"Aurelian Autonomous Enterprise Operations","version":"0.3.5.2","database":"postgresql","policy":"opa","tool_isolation":"container"}
+== Runtime application role ==
+   rolname    | rolsuper | rolbypassrls | schema_create | audit_insert | audit_update | audit_delete | audit_truncate 
+--------------+----------+--------------+---------------+--------------+--------------+--------------+----------------
+ aurelian_app | f        | f            | f             | f            | f            | f            | f
+(1 row)
+
+== Audit writer role ==
+        rolname        | rolsuper | rolbypassrls | audit_select | audit_insert | audit_update | audit_delete | audit_truncate 
+-----------------------+----------+--------------+--------------+--------------+--------------+--------------+----------------
+ aurelian_audit_writer | f        | f            | t            | t            | f            | f            | f
+(1 row)
+
+== PostgreSQL RLS direct canary ==
+PASS: admin sees 6 Northstar canary row(s); Meridian runtime role sees 0
+== Runtime app cannot mutate audit ledger ==
+PASS: aurelian_app audit UPDATE denied
+== Runtime container privilege posture ==
+PASS: tool-runner and planner have zero effective capabilities + no-new-privileges
+== Tool-runner DB network isolation ==
+PASS: postgres DNS is not visible from tool-runner network
+== Planner DB network isolation ==
+PASS: postgres DNS is not visible from planner network
+== Frontend backend-network isolation ==
+PASS: frontend cannot reach postgres:5432
+PASS: frontend cannot reach redis:6379
+PASS: frontend cannot reach qdrant:6333
+PASS: frontend cannot reach opa:8181
+== Redis authentication ==
+PASS: Redis rejects unauthenticated clients and accepts secret-authenticated clients
+== Qdrant authentication ==
+PASS: Qdrant authentication enforced
+== Behavioral security checks ==
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "audit signature + hash chain",
+      "passed": true
+    },
+    {
+      "name": "prompt-injection classifier",
+      "passed": true
+    },
+    {
+      "name": "PostgreSQL RLS returns only current tenant rows",
+      "passed": true
+    },
+    {
+      "name": "pooled connection tenant state resets between tenants",
+      "passed": true
+    },
+    {
+      "name": "runtime DB role is NOSUPERUSER + NOBYPASSRLS",
+      "passed": true
+    },
+    {
+      "name": "runtime DB role has no schema CREATE privilege",
+      "passed": true
+    },
+    {
+      "name": "runtime DB role cannot mutate audit ledger",
+      "passed": true
+    },
+    {
+      "name": "audit writer is INSERT-only and NOBYPASSRLS",
+      "passed": true
+    },
+    {
+      "name": "policy engine returns a live low-risk decision",
+      "passed": true,
+      "source": "opa",
+      "policy_fingerprint": "079ccd5dad039ae89096e8211a0eaf94b0f2b28013270d6997e1e379416a398a"
+    }
+  ],
+  "note": "Behavioral demo checks; CI adds side-effect, replay, failure-mode and trace-propagation tests."
+}
+== Concurrent approval CAS ==
+PASS: exactly one concurrent approval claimed execution
+== OPA fail-closed ==
+ Container v352-opa-1 Paused 
+PASS: OPA outage denied side-effect workflow
+ Container v352-opa-1 Unpaused 
+v0.3.5.2 runtime verification completed.

@@ -1,0 +1,18 @@
+Aurelian v0.3.5.2 Phase 2 static/local verification
+====================================================
+Python compileall: PASS
+pytest portable suite: 36/36 PASS
+frontend JavaScript node --check: PASS
+Docker Compose YAML parse (PyYAML): PASS
+docker-compose.production.yml parse: PASS
+GitHub Actions YAML parse: PASS
+verify_v352.sh bash syntax: PASS
+universal demo-secret literal scan in executable/config sources: PASS
+
+Not executed in this build environment:
+- live Docker Compose topology (no Docker daemon available)
+- PostgreSQL/OPA runtime integration script
+- Bandit (not installed)
+- pip-audit (not installed)
+
+Do not claim live runtime validation until scripts/verify_v352.sh or the configured CI runtime-security-integration job passes.

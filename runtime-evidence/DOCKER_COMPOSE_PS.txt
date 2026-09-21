@@ -1,0 +1,11 @@
+NAME                 IMAGE                               COMMAND                  SERVICE       CREATED          STATUS                     PORTS
+v352-api-1           v352-api                            "uvicorn app.main:ap…"   api           2 minutes ago    Up 2 minutes (healthy)     8000/tcp
+v352-frontend-1      v352-frontend                       "/docker-entrypoint.…"   frontend      2 minutes ago    Up 2 minutes               0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+v352-jaeger-1        jaegertracing/all-in-one:1.64.0     "/go/bin/all-in-one-…"   jaeger        27 minutes ago   Up 27 minutes              16686/tcp
+v352-migrate-1       v352-migrate                        "python -m app.migra…"   migrate       27 minutes ago   Exited (0) 2 minutes ago   
+v352-opa-1           openpolicyagent/opa:0.70.0-static   "/opa run --server -…"   opa           27 minutes ago   Up 27 minutes              
+v352-planner-1       v352-planner                        "uvicorn app:app --h…"   planner       27 minutes ago   Up 27 minutes (healthy)    
+v352-postgres-1      postgres:16-alpine                  "docker-entrypoint.s…"   postgres      27 minutes ago   Up 27 minutes (healthy)    5432/tcp
+v352-qdrant-1        qdrant/qdrant:v1.12.5               "/bin/sh -c 'export …"   qdrant        2 minutes ago    Up 2 minutes               6333-6334/tcp
+v352-redis-1         redis:7.4-alpine                    "docker-entrypoint.s…"   redis         27 minutes ago   Up 27 minutes (healthy)    6379/tcp
+v352-tool-runner-1   v352-tool-runner                    "uvicorn tool_runner…"   tool-runner   27 minutes ago   Up 27 minutes (healthy)    
