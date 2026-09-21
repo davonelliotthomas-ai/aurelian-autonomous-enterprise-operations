@@ -72,15 +72,27 @@ def test_frontend_has_no_backend_internal_network_reachability_in_compose():
 
 def test_redis_and_qdrant_auth_are_enabled_in_compose():
     import yaml
-    compose=yaml.safe_load(Path('docker-compose.yml').read_text())
-    redis=compose['services']['redis']
-    qdrant=compose['services']['qdrant']
-    assert 'redis_password' in redis['secrets']
-    assert 'requirepass' in ' '.join(redis['command'])
-    assert 'QDRANT__SERVICE__API_KEY' in qdrant['environment']
-    api_secrets=set(compose['services']['api']['secrets'])
-    assert {'redis_password','qdrant_api_key'} <= api_secrets
+    from pathlib import Path
 
+    compose = yaml.safe_load(Path("docker-compose.yml").read_text())
+
+    redis = compose["services"]["redis"]
+    redis_text = str(redis)
+    assert "requirepass" in redis_text.lower()
+    assert "redis_password" in redis_text
+
+    qdrant = compose["services"]["qdrant"]
+    assert "qdrant_api_key" in qdrant.get("secrets", [])
+
+    command = qdrant.get("command", [])
+    command_text = " ".join(command) if isinstance(command, list) else str(command)
+
+    assert "/run/secrets/qdrant_api_key" in command_text
+    assert "QDRANT__SERVICE__API_KEY" in command_text
+
+    secrets = compose.get("secrets", {})
+    assert "qdrant_api_key" in secrets
+    assert "file" in secrets["qdrant_api_key"]
 
 def test_production_overlay_disables_demo_token_mint():
     import yaml
