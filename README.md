@@ -262,6 +262,12 @@ The following screenshots are direct evidence from the running v0.3.5.2 system a
 
 *Public repository CI completing successfully after testing, security scanning, Compose validation, and runtime integration checks.*
 
+### Distributed Trace — v0.3.5.2
+
+![Aurelian Jaeger distributed trace](docs/assets/proof/jaeger-trace.png)
+
+*Actual Jaeger/OpenTelemetry trace from a governed workflow execution, showing nine spans across the Aurelian control plane and planner service, including input guard, planning, policy evaluation, just-in-time policy, execution, and verification stages.*
+
 These screenshots document observed behavior in the tested environments. They are not third-party certification or proof that the system is free from every possible vulnerability.
 
 ---
