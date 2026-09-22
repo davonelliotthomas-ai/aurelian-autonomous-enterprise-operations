@@ -306,14 +306,6 @@ Public internet deployment      In progress
 
 ---
 
-## Interface & System Presentation
-
-![Aurelian platform presentation](docs/assets/aurelian-interface-concept.png)
-
-*Illustrative presentation of the platform interface, capabilities, and operational model. Runtime evidence is preserved separately in `runtime-evidence/`.*
-
----
-
 ## Project Focus
 
 This project demonstrates work relevant to:
