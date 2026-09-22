@@ -52,6 +52,42 @@ jobs:
       QDRANT_API_KEY: ci-qdrant-api-key-32-bytes-minimum-01
     steps:
       - uses: actions/checkout@v4
+      - name: Create ephemeral runtime secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .secrets
+          chmod 700 .secrets
+
+          python3 - <<'PYSECRETS'
+          from pathlib import Path
+          import secrets
+
+          names = [
+              "jwt_secret",
+              "audit_signing_key",
+              "internal_service_token",
+              "postgres_admin_password",
+              "postgres_app_password",
+              "postgres_audit_password",
+              "redis_password",
+              "qdrant_api_key",
+          ]
+
+          root = Path(".secrets")
+
+          for name in names:
+              p = root / name
+              p.write_text(secrets.token_hex(32) + "\n")
+              p.chmod(0o444)
+
+          print(f"Created {len(names)} ephemeral CI secret files")
+          PYSECRETS
+
+          test "$(find .secrets -maxdepth 1 -type f | wc -l)" -eq 8
+          echo "PASS: ephemeral runtime secrets prepared"
+
       - name: Build and start exact Compose topology
         run: docker compose up -d --build
       - name: Wait for public health
