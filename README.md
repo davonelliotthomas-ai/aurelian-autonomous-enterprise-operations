@@ -32,29 +32,10 @@ It is to make its actions **governed, observable, attributable, and testable**.
 
 ## Architecture
 
-```text
-                   ┌──────────────────────┐
-                   │       Frontend       │
-                   └──────────┬───────────┘
-                              │
-                   ┌──────────▼───────────┐
-                   │   FastAPI Control    │
-                   │        Plane         │
-                   └──────┬───────┬───────┘
-                          │       │
-                 ┌────────▼─┐   ┌─▼─────────────┐
-                 │   OPA     │   │    Planner    │
-                 │  Policy   │   │    Service    │
-                 └───────────┘   └──────┬────────┘
-                                        │
-                               ┌────────▼────────┐
-                               │   Tool Runner   │
-                               │  Isolated Exec  │
-                               └─────────────────┘
+![Aurelian Autonomous Enterprise Operations Architecture](docs/assets/aurelian-architecture.png)
 
-        PostgreSQL       Redis       Qdrant       Jaeger / OTel
-        RLS + Roles      Cache       Retrieval    Observability
-```
+*System architecture overview for Aurelian Autonomous Enterprise Operations v0.3.5.2.*
+
 
 ---
 
@@ -284,6 +265,14 @@ Runtime integration tests       ✓
 Local live validation           ✓
 Public internet deployment      In progress
 ```
+
+---
+
+## Interface & System Presentation
+
+![Aurelian platform presentation](docs/assets/aurelian-interface-concept.png)
+
+*Illustrative presentation of the platform interface, capabilities, and operational model. Runtime evidence is preserved separately in `runtime-evidence/`.*
 
 ---
 
