@@ -3,7 +3,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN useradd -r -u 10002 -m -d /home/planner planner
 WORKDIR /srv
 RUN pip install --no-cache-dir \
-    fastapi==0.115.6 \
+    fastapi==0.141.1 \
     uvicorn==0.34.0 \
     pydantic==2.10.4 \
     opentelemetry-api==1.29.0 \
