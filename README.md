@@ -234,6 +234,38 @@ It is **not a claim of formal third-party security certification or proof agains
 
 ---
 
+## Runtime Evidence
+
+The following screenshots are direct evidence from the running v0.3.5.2 system and its current CI pipeline. They are separate from the illustrative presentation graphic elsewhere in this README.
+
+### Operational Interface
+
+![Actual Aurelian runtime interface](docs/assets/proof/runtime-ui.png)
+
+*Actual Aurelian interface from the running system.*
+
+### Docker Runtime and Security Controls
+
+![Actual Aurelian Docker runtime](docs/assets/proof/docker-runtime.png)
+
+*Containerized v0.3.5.2 runtime and security-validation evidence from Docker Desktop + WSL2.*
+
+### Automated Runtime Verification
+
+![Aurelian runtime verification](docs/assets/proof/runtime-verification.png)
+
+*Completed v0.3.5.2 runtime verification, including concurrency and fail-closed policy behavior.*
+
+### GitHub Actions CI
+
+![Aurelian GitHub Actions CI](docs/assets/proof/github-ci.png)
+
+*Public repository CI completing successfully after testing, security scanning, Compose validation, and runtime integration checks.*
+
+These screenshots document observed behavior in the tested environments. They are not third-party certification or proof that the system is free from every possible vulnerability.
+
+---
+
 ## Adversarial Review
 
 The architecture went through multiple adversarial review and remediation passes covering areas such as:
