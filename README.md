@@ -236,7 +236,7 @@ It is **not a claim of formal third-party security certification or proof agains
 
 ## Runtime Evidence
 
-The following screenshots are direct evidence from the running v0.3.5.2 system and its current CI pipeline. They are separate from the illustrative presentation graphic elsewhere in this README.
+The following screenshots are direct evidence from the running v0.3.5.2 system and its current CI pipeline.
 
 ### Operational Interface
 
