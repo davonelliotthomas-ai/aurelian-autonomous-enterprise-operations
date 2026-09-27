@@ -1,5 +1,6 @@
 services:
   frontend:
+    restart: unless-stopped
     build: {context: ., dockerfile: frontend/Dockerfile}
     ports: ["127.0.0.1:8080:8080"]
     depends_on:
@@ -7,6 +8,7 @@ services:
     networks: [edge, frontend_api]
 
   api:
+    restart: unless-stopped
     build: .
     environment:
       APP_ENV: container
@@ -51,6 +53,7 @@ services:
     networks: [frontend_api, internal, tool_exec, planner_exec]
 
   planner:
+    restart: unless-stopped
     build: {context: ., dockerfile: planner_runner/Dockerfile}
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
@@ -85,6 +88,7 @@ services:
     networks: [internal]
 
   tool-runner:
+    restart: unless-stopped
     build: {context: ., dockerfile: tool_runner/Dockerfile}
     environment:
       REQUIRE_SECRET_FILES: "true"
@@ -107,6 +111,7 @@ services:
     networks: [tool_exec]
 
   postgres:
+    restart: unless-stopped
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: aurelian
@@ -127,6 +132,7 @@ services:
     networks: [internal]
 
   redis:
+    restart: unless-stopped
     image: redis:7.4-alpine
     command: ["sh","-c",'exec redis-server --appendonly yes --save 60 1 --requirepass "$$(cat /run/secrets/redis_password)"']
     secrets: [redis_password]
@@ -138,6 +144,7 @@ services:
     networks: [internal]
 
   qdrant:
+    restart: unless-stopped
     image: qdrant/qdrant:v1.12.5
     entrypoint: ["/bin/sh","-c"]
     command:
@@ -147,12 +154,14 @@ services:
     networks: [internal]
 
   opa:
+    restart: unless-stopped
     image: openpolicyagent/opa:0.70.0-static
     command: ["run","--server","--addr=0.0.0.0:8181","/policy/policy.rego"]
     volumes: ["./opa:/policy:ro"]
     networks: [internal]
 
   jaeger:
+    restart: unless-stopped
     image: jaegertracing/all-in-one:1.64.0
     environment: {COLLECTOR_OTLP_ENABLED: "true"}
     ports: ["127.0.0.1:16686:16686"]
