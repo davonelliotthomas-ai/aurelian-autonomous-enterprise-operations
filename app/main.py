@@ -121,7 +121,7 @@ async def health(): return {"status":"ok","system":settings.app_name,"version":s
 if settings.public_demo:
     @app.get('/api/auth/demo-token')
     async def demo_token(role:str="operator",tenant_id:str="meridian",mfa:bool=True):
-        if role not in ROLE_LEVEL: raise HTTPException(400,"invalid role")
+        if role not in {"viewer","operator","executive"}: raise HTTPException(400,"invalid public demo role")
         if tenant_id not in {"meridian","northstar"}: raise HTTPException(400,"unknown demo tenant")
         return {"access_token":create_demo_token(f"{role}.demo@{tenant_id}.demo",tenant_id,role,mfa),"token_type":"bearer","role":role,"tenant_id":tenant_id,"mfa":mfa}
 

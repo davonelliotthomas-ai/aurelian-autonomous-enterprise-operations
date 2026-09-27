@@ -110,7 +110,8 @@ def test_low_risk_search_prompt_is_redacted_from_audit_and_checkpoints():
 def test_admin_without_executive_scope_cannot_deny_executive_approval():
     with TestClient(app) as client:
         op=client.get('/api/auth/demo-token',params={'role':'operator','tenant_id':'meridian','mfa':'true'}).json()['access_token']
-        admin=client.get('/api/auth/demo-token',params={'role':'admin','tenant_id':'meridian','mfa':'true'}).json()['access_token']
+        from app.auth import create_demo_token
+        admin=create_demo_token("admin.test@meridian.demo","meridian","admin",True)
         req=client.post('/api/tasks',headers={'Authorization':f'Bearer {op}'},json={'request':'Change price AUR-101 to $999'}).json()
         denied=client.post(f"/api/approvals/{req['approval_id']}/deny",headers={'Authorization':f'Bearer {admin}'},json={'note':'no executive scope'})
         assert denied.status_code==403

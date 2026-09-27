@@ -20,7 +20,7 @@ class Principal:
 def create_demo_token(sub:str,tenant_id:str,role:str,mfa:bool=True)->str:
     if role not in ROLE_LEVEL: raise ValueError("invalid role")
     now=datetime.now(timezone.utc); scopes={"viewer":["read"],"operator":["read","operate"],"admin":["read","operate","approve:team"],"executive":["read","operate","approve:team","approve:executive"]}[role]
-    return jwt.encode({"sub":sub,"tenant_id":tenant_id,"role":role,"scope":" ".join(scopes),"mfa":mfa,"iss":settings.jwt_issuer,"aud":settings.jwt_audience,"iat":now,"exp":now+timedelta(hours=8)},secrets.get("JWT_SECRET"),algorithm="HS256")
+    return jwt.encode({"sub":sub,"tenant_id":tenant_id,"role":role,"scope":" ".join(scopes),"mfa":mfa,"iss":settings.jwt_issuer,"aud":settings.jwt_audience,"iat":now,"exp":now+timedelta(hours=1)},secrets.get("JWT_SECRET"),algorithm="HS256")
 
 def _principal(payload:dict)->Principal:
     role=str(payload.get("role") or (payload.get("roles") or ["viewer"])[0]); tenant=str(payload.get("tenant_id") or payload.get("tid") or "")
