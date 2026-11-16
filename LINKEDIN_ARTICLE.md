@@ -43,10 +43,16 @@ My central principle: **reliable systems emerge from explicit invariants, intent
 
 The source code, tests, and interactive demonstration are available for technical review.
 
-**Suggested LinkedIn Featured labels after publication:**
+**Explore the project:**
+
+- [Run the live Aurelian Signal Engine](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/)
+- [Review the complete Python source and tests on GitHub](https://github.com/davonelliotthomas-ai/aurelian-autonomous-enterprise-operations/tree/aurelian-signal-engine/aurelian-signal-engine)
+- [Read the 15-minute architecture walkthrough](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/walkthrough.html)
+
+**Suggested LinkedIn Featured labels:**
 
 - Live Demo: Aurelian Signal Engine — Python Data Quality Lab
 - GitHub: Aurelian Signal Engine — 21-Test Python Engineering Project
 - Architecture Walkthrough: Why I Designed the Aurelian Signal Engine This Way
 
-**Publication instructions:** Insert the verified live-demo URL and GitHub repository link before posting. Do not claim Azure deployment, FastAPI implementation, customer usage, or production operation for Project 01.
+**Technical scope:** This is a self-contained Python data-engineering demonstration, not an Azure deployment, FastAPI implementation, customer system, or production service.
