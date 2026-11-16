@@ -2,6 +2,10 @@
 
 **Project 01 / 06 · Python Data Engineering**
 
+**[Launch the live Aurelian Signal Engine](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/)** · [15-minute engineering walkthrough](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/walkthrough.html)
+
+**Source:** [Aurelian Signal Engine project files](https://github.com/davonelliotthomas-ai/aurelian-autonomous-enterprise-operations/tree/aurelian-signal-engine/aurelian-signal-engine)
+
 An original engineering demonstration by **The Aurelian Group**. It validates, normalizes, deduplicates, and analyzes fictional business-event records. The Python core runs locally and in a browser using Pyodide (CPython compiled to WebAssembly).
 
 > All records are invented. This is a technical demonstration, not a customer deployment or production platform. It uses no backend database, cloud resources, or hosted Python API.
