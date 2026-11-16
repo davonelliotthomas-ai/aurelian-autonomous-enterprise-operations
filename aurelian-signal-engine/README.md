@@ -2,7 +2,7 @@
 
 **Project 01 / 06 · Python Data Engineering**
 
-**[Launch the live Aurelian Signal Engine](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/)** · [15-minute engineering walkthrough](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/walkthrough.html)
+**[Launch the live Aurelian Signal Engine](https://davonelliotthomas-ai.github.io/aurelian-autonomous-enterprise-operations/)**
 
 **Source:** [Aurelian Signal Engine project files](https://github.com/davonelliotthomas-ai/aurelian-autonomous-enterprise-operations/tree/aurelian-signal-engine/aurelian-signal-engine)
 
@@ -59,8 +59,6 @@ tests/test_engine.py        21 automated unit tests
 dist/index.html             Interactive Aurelian experience
 dist/styles.css             Responsive blue-and-white design
 dist/app.js                 Browser runtime and visualization
-dist/walkthrough.html       Browser-readable teaching article
-docs/ENGINEERING_WALKTHROUGH.md  15-minute who/what/when/where/why/how guide
 docs/ARCHITECTURE.md        Decisions, limitations, next steps
 docs/LINKEDIN_ARTICLE.md    LinkedIn publication-ready technical post
 screenshots/                Visual documentation
@@ -105,7 +103,6 @@ SQL persistence, FastAPI request handling, service authorization, multi-user pro
 ## Documentation
 
 - [Technical architecture](docs/ARCHITECTURE.md)
-- [15-minute explanatory walkthrough](docs/ENGINEERING_WALKTHROUGH.md)
 - [LinkedIn article](docs/LINKEDIN_ARTICLE.md)
 
 © 2026 The Aurelian Group. Project materials are supplied as a portfolio demonstration.
