@@ -1,0 +1,10 @@
+[
+  {"source":"billing","external_id":"INV-1001","category":"Subscriptions","amount":"249.99","occurred_at":"2026-11-10T09:15:00Z","tags":["recurring","priority"]},
+  {"source":"billing","external_id":"INV-1002","category":"Consulting","amount":"1800.00","occurred_at":"2026-11-10T11:22:00Z","tags":["enterprise"]},
+  {"source":"commerce","external_id":"ORD-1088","category":"Commerce","amount":"420.50","occurred_at":"2026-11-11T14:04:00-05:00","tags":["online","verified"]},
+  {"source":"billing","external_id":"INV-1003","category":"Subscriptions","amount":"119.00","occurred_at":"2026-11-11T10:00:00Z","tags":["renewal"]},
+  {"source":"billing","external_id":"INV-1002","category":"Consulting","amount":"1850.00","occurred_at":"2026-11-12T09:30:00Z","tags":["enterprise","revised"]},
+  {"source":"commerce","external_id":"ORD-1091","category":"Commerce","amount":"89.95","occurred_at":"2026-11-12T18:32:00Z","tags":["online"]},
+  {"source":"import","external_id":"BAD-01","category":"Commerce","amount":"12.999","occurred_at":"2026-11-13T08:00:00Z","tags":["invalid"]},
+  {"source":"billing","external_id":"INV-1004","category":"Consulting","amount":"650.00","occurred_at":"2026-11-13T13:45:00Z","tags":["retainer"]}
+]

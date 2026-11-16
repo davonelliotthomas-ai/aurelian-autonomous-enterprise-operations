@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Aurelian Signal Engine: an interactive, browser-based Python data-quality and analytics project.">
+  <meta name="theme-color" content="#f6f9ff">
+  <title>Aurelian — Signal Engine | Engineering Lab 01</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="page-glow" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Aurelian Signal Engine home">
+      <span class="brand-mark">A<span class="brand-spark">.</span></span>
+      <span class="brand-copy"><strong>AURELIAN</strong><small>ENGINEERING LABS</small></span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#workspace">Live engine</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#source">Source</a>
+    </nav>
+    <a class="topbar-cta" href="#workspace">Explore demo <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> AURELIAN / PROJECT 01 <span class="eyebrow-divider"></span> PYTHON ENGINEERING</div>
+        <h1>Clarity begins<br>with <em>clean data.</em></h1>
+        <p class="hero-lede">A precision-built Python engine that transforms raw business events into validated, traceable, decision-ready intelligence.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#workspace">Run the engine <span aria-hidden="true">→</span></a>
+          <a class="button button-secondary" href="#architecture">Explore the architecture <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-footnote"><span class="status-pulse"></span> REAL PYTHON IN THE BROWSER <span class="split-dot">•</span> NO SERVER REQUIRED <span class="split-dot">•</span> SYNTHETIC DEMO DATA</div>
+      </div>
+      <div class="hero-visual" aria-label="Signal Engine process illustration">
+        <div class="orb orb-one"></div><div class="orb orb-two"></div>
+        <div class="flow-card">
+          <div class="flow-top"><span><span class="flow-indicator"></span> ENGINE ONLINE</span><span>01 / LAB</span></div>
+          <div class="flow-graphic">
+            <div class="flow-node"><span class="node-symbol">{ }</span><span><strong>Raw events</strong><small>CSV · JSON</small></span><span class="node-check">✓</span></div>
+            <div class="flow-connector"><span></span><span></span><span></span></div>
+            <div class="flow-node"><span class="node-symbol">◇</span><span><strong>Data integrity</strong><small>Validate · Normalize</small></span><span class="node-check">✓</span></div>
+            <div class="flow-connector"><span></span><span></span><span></span></div>
+            <div class="flow-node active-node"><span class="node-symbol">↗</span><span><strong>Business signals</strong><small>Deduplicate · Aggregate</small></span><span class="node-check">✓</span></div>
+          </div>
+          <div class="flow-bottom"><span>Deterministic by design</span><span class="flow-signal"><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div>
+        <div class="floating-label"><span class="floating-glyph">✦</span><span>Python<br><b>Engineering</b></span></div>
+      </div>
+    </section>
+
+    <section class="proof-strip shell" aria-label="Engineering project facts">
+      <div class="proof-item"><strong>21</strong><span>AUTOMATED TESTS</span></div>
+      <div class="proof-item"><strong>0</strong><span>THIRD-PARTY PYTHON PACKAGES</span></div>
+      <div class="proof-item"><strong>100%</strong><span>CLIENT-SIDE DATA PROCESSING</span></div>
+      <div class="proof-item"><strong>01 / 06</strong><span>AURELIAN PROJECT SERIES</span></div>
+    </section>
+
+    <section class="workspace-section" id="workspace">
+      <div class="shell">
+        <div class="section-heading">
+          <div><span class="kicker">01 — HANDS-ON ENVIRONMENT</span><h2>The live workspace<span class="blue-period">.</span></h2><p>Edit synthetic records, run the actual Python pipeline, and inspect every decision it makes.</p></div>
+          <span class="section-index">ENGINE / LIVE LAB</span>
+        </div>
+        <div class="workspace-grid">
+          <div class="panel input-panel">
+            <div class="panel-header">
+              <div><span class="panel-icon">&lt;/&gt;</span><strong>Input records</strong></div>
+              <div class="mode-switch" role="tablist" aria-label="Data format"><button id="json-mode" role="tab" aria-selected="true" class="selected" type="button">JSON</button><button id="csv-mode" role="tab" aria-selected="false" type="button">CSV</button></div>
+            </div>
+            <div class="editor-toolbar"><span class="editor-filename" id="editor-filename">events.json</span><div><button class="text-button" id="load-sample" type="button">↺ Reset sample</button><label class="text-button upload-label">↑ Import file<input type="file" id="file-input" accept=".json,.csv,text/csv,application/json" hidden></label></div></div>
+            <div class="editor-wrap"><div class="editor-gutter" aria-hidden="true">01<br>02<br>03<br>04<br>05<br>06<br>07<br>08<br>09<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><textarea id="input-data" spellcheck="false" aria-label="Editable JSON or CSV data input"></textarea></div>
+            <div class="editor-footer">
+              <div class="runtime-status" id="runtime-status"><span class="runtime-dot"></span><span>Loading Python runtime…</span></div>
+              <button class="button button-primary run-button" type="button" id="run-engine" disabled>Run Python engine <span aria-hidden="true">→</span></button>
+            </div>
+            <p class="editor-hint">Data stays in this browser. The initial dataset is fictional and includes a revised duplicate and an invalid amount to demonstrate validation.</p>
+          </div>
+          <div class="panel output-panel">
+            <div class="panel-header"><div><span class="panel-icon output-icon">✦</span><strong>Engine output</strong></div><span class="chip" id="output-chip">AWAITING RUN</span></div>
+            <div class="output-inner">
+              <div id="error-banner" class="error-banner" role="alert" hidden></div>
+              <div class="revenue-label">NORMALIZED EVENT VALUE</div>
+              <div class="revenue-figure" id="total-value">—</div>
+              <div class="result-stats">
+                <div><strong id="accepted-value">—</strong><span>ACCEPTED</span></div>
+                <div><strong id="duplicates-value">—</strong><span>DEDUPLICATED</span></div>
+                <div><strong id="rejected-value">—</strong><span>QUARANTINED</span></div>
+              </div>
+              <div class="breakdown-heading"><span>Category distribution</span><small id="category-subtitle">Run the engine to see categories</small></div>
+              <div class="category-chart" id="category-chart"><div class="empty-chart">Output will appear here after the first run.</div></div>
+              <div class="output-actions"><button class="button button-download" type="button" id="download-report" disabled>↓ Download report.json</button><span id="execution-detail">Idle</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel records-panel">
+          <div class="records-top"><div><span class="kicker">VERIFIABLE RESULTS</span><h3>Normalized records</h3></div><div class="legend"><span><i class="legend-blue"></i> Accepted</span><span><i class="legend-orange"></i> Invalid rows quarantined</span></div></div>
+          <div class="table-scroller"><table aria-label="Normalized event results"><thead><tr><th>EVENT ID</th><th>SOURCE</th><th>CATEGORY</th><th>AMOUNT</th><th>TIMESTAMP (UTC)</th><th>STATUS</th></tr></thead><tbody id="records-body"><tr><td colspan="6" class="empty-row">Run the engine to generate normalized records.</td></tr></tbody></table></div>
+          <div class="quality-footer" id="quality-footer">Quality log appears after processing.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="architecture-section shell" id="architecture">
+      <div class="section-heading"><div><span class="kicker">02 — SYSTEM DESIGN</span><h2>Engineered for integrity<span class="blue-period">.</span></h2><p>Small, testable components. Explicit rules. Predictable results.</p></div><span class="section-index">DESIGN / DECISIONS</span></div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-number">01</span><div class="feature-glyph">◈</div><h3>Immutable data model</h3><p>Frozen dataclasses and tuple-based tags protect normalized records from accidental mutation across processing stages.</p><span>Python · dataclass · tuple</span></article>
+        <article class="feature-card"><span class="feature-number">02</span><div class="feature-glyph">◎</div><h3>Exact monetary math</h3><p>Decimal values become integer cents. No surprise binary floating-point rounding in financial aggregations.</p><span>Decimal · integer cents</span></article>
+        <article class="feature-card"><span class="feature-number">03</span><div class="feature-glyph">⌘</div><h3>Deterministic identity</h3><p>Composite source-and-ID keys resolve revisions by UTC timestamp. Equal timestamps preserve the first event.</p><span>dict · tuple key · sorting</span></article>
+        <article class="feature-card"><span class="feature-number">04</span><div class="feature-glyph">✳</div><h3>Visible quality controls</h3><p>Invalid rows are quarantined with row numbers and explicit reasons. No silent data loss or hidden coercion.</p><span>exceptions · validation · testing</span></article>
+      </div>
+      <div class="pipeline-band">
+        <div><span class="kicker kicker-light">PROCESSING PIPELINE</span><h3>One source of truth,<br>five deliberate stages.</h3></div>
+        <ol class="pipeline-stages"><li><b>01</b><span>Parse<br><small>JSON / CSV</small></span></li><li><b>02</b><span>Validate<br><small>Typed rules</small></span></li><li><b>03</b><span>Normalize<br><small>UTC / cents</small></span></li><li><b>04</b><span>Resolve<br><small>Duplicates</small></span></li><li><b>05</b><span>Analyze<br><small>Metrics / log</small></span></li></ol>
+      </div>
+    </section>
+
+    <section class="source-section" id="source">
+      <div class="shell">
+        <div class="section-heading"><div><span class="kicker">03 — CODE TRANSPARENCY</span><h2>Read the engineering<span class="blue-period">.</span></h2><p>Inspectable Python source, CLI, and tests. No black-box claims.</p></div><a class="button button-secondary" href="./engine.py" target="_blank" rel="noopener">Open engine.py ↗</a></div>
+        <div class="code-explorer">
+          <div class="code-sidebar"><div class="code-sidebar-title">AURELIAN / PROJECT 01</div><button class="code-tab selected" type="button" data-file="engine.py"><span>◉</span> engine.py</button><button class="code-tab" type="button" data-file="cli.py"><span>⌁</span> cli.py</button><button class="code-tab" type="button" data-file="test_engine.py"><span>✓</span> test_engine.py</button><div class="code-sidebar-footer">Python 3.11+<br>21 unit tests passing</div></div>
+          <div class="code-content"><div class="code-topbar"><span id="code-title">engine.py</span><button class="text-button" type="button" id="copy-code">Copy code ⧉</button></div><pre id="code-preview" tabindex="0">Loading source…</pre></div>
+        </div>
+        <div class="source-bottom"><p><b>Technical disclosure:</b> Interactive execution uses Pyodide, a WebAssembly-based Python runtime loaded from a public CDN. All records are processed in your browser; this project does not operate a hosted Python API or database.</p><a href="./walkthrough.html">Read the 15-minute engineering walkthrough <span>↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="closing shell"><div><span class="kicker kicker-light">THE AURELIAN GROUP</span><h2>Built to be understood.<br>Built to be trusted.</h2><p>A practical demonstration of the fundamentals behind reliable Python backends and data platforms.</p></div><a class="button button-white" href="#workspace">Return to the engine ↑</a></section>
+  </main>
+  <footer class="footer shell"><a class="brand" href="#top"><span class="brand-mark">A<span class="brand-spark">.</span></span><span class="brand-copy"><strong>AURELIAN</strong><small>ENGINEERING LABS</small></span></a><span>© 2026 THE AURELIAN GROUP · PROJECT 01 / 06</span><span>SYNTHETIC DATA · NO CUSTOMER RECORDS</span></footer>
+</body>
+</html>
