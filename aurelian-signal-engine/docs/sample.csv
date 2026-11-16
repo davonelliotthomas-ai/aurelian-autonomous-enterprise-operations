@@ -1,0 +1,9 @@
+source,external_id,category,amount,occurred_at,tags
+billing,INV-1001,Subscriptions,249.99,2026-11-10T09:15:00Z,recurring|priority
+billing,INV-1002,Consulting,1800.00,2026-11-10T11:22:00Z,enterprise
+commerce,ORD-1088,Commerce,420.50,2026-11-11T14:04:00-05:00,online|verified
+billing,INV-1003,Subscriptions,119.00,2026-11-11T10:00:00Z,renewal
+billing,INV-1002,Consulting,1850.00,2026-11-12T09:30:00Z,enterprise|revised
+commerce,ORD-1091,Commerce,89.95,2026-11-12T18:32:00Z,online
+import,BAD-01,Commerce,12.999,2026-11-13T08:00:00Z,invalid
+billing,INV-1004,Consulting,650.00,2026-11-13T13:45:00Z,retainer
